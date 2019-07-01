@@ -83,6 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toEndOf="@+id/discover"
-        android:text="enviar" />
+        android:text="enviar"
+        android:layout_toRightOf="@+id/discover" />
 
 </RelativeLayout>
