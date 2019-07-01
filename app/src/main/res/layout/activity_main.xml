@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/connectionStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_above="@+id/onOff"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="0dp"
+        android:text="Connection Status"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textFontWeight="20dp"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.033" />
+
+    <Button
+        android:id="@+id/onOff"
+        android:layout_width="105dp"
+        android:layout_height="50dp"
+        android:layout_alignTop="@+id/discover"
+        android:text="Wifi-On"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="37dp"
+        tools:layout_editor_absoluteY="77dp" />
+
+    <Button
+        android:id="@+id/discover"
+        android:layout_width="109dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="76dp"
+        android:text="Discover"
+        tools:layout_editor_absoluteX="178dp"
+        tools:layout_editor_absoluteY="77dp" />
+
+    <ListView
+        android:id="@+id/peerListView"
+        android:layout_width="wrap_content"
+        android:layout_height="177dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="147dp"
+        android:background="@color/colorPrimary"
+        android:backgroundTint="@color/listView"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="144dp" />
+
+    <TextView
+        android:id="@+id/readMsg"
+        android:layout_width="155dp"
+        android:layout_height="39dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="88dp"
+        android:text="messagem"
+        android:textAlignment="center"
+        android:textSize="40px"
+        tools:layout_editor_absoluteX="121dp"
+        tools:layout_editor_absoluteY="355dp" />
+
+    <EditText
+        android:id="@+id/writeMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/discover"
+        android:text="enviar" />
+
+</RelativeLayout>
