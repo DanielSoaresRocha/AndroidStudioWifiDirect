@@ -9,6 +9,8 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,7 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
 
+    static final int MESSAGE_READ=1;
+
+    //comunicação cliente-servidor
+    ServerClass serverClass;
+    ClientClass clientClass;
+    SendReceive sendReceive;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +67,22 @@ public class MainActivity extends AppCompatActivity {
         exqListener();
     }
 
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what)
+            {
+                case MESSAGE_READ:
+                    byte[] readBuff= (byte[]) msg.obj;
+                    String tempMsg= new String(readBuff,0,msg.arg1);
+                    read_msg_box.setText(tempMsg);
+                    break;
+            }
+            return true;
+        }
+    });
+
+    //tratando a lista
     private void exqListener() {
         btnOnOff.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,9 +138,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Botão enviar
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String msg=writeMsg.getText().toString();
+                sendReceive.write(msg.getBytes());
+            }
+        });
+
     }
 
-
+    //Inicialização dos componentes
     private void initialWork(){
         btnOnOff = findViewById(R.id.onOff);
         btnDiscover = findViewById(R.id.discover);
@@ -135,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //preenchimento da lista
     WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -168,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //identificação do dispositivo host ou client e comunicação
     WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
@@ -176,15 +218,20 @@ public class MainActivity extends AppCompatActivity {
             if(wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             {
                 connectionStatus.setText("Host");
+
+                serverClass=new ServerClass();
+                serverClass.start(); //servidor começa a "ouvir"
             }else if(wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Cliente");
+
+                clientClass=new ClientClass(groupOwnerAdreess);
+                clientClass.start();
             }
         }
     };
 
-
-    //registra o receptor de broadcast
+    //registrar o receptor de broadcast
     @Override
     protected void onResume() {
         super.onResume();
@@ -197,6 +244,98 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mReceiver);
+    }
+
+
+    //SERVIDOR
+    public class ServerClass extends Thread{
+        Socket socket;
+        ServerSocket serverSocket;
+
+        @Override
+        public void run() {
+            try {
+                serverSocket = new ServerSocket(8888);
+                socket = serverSocket.accept();
+
+                sendReceive = new SendReceive(socket);
+                sendReceive.start();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class SendReceive extends  Thread{
+        private Socket socket;
+        private InputStream inputStream;
+        private OutputStream outputStream;
+
+        public SendReceive(Socket skt)
+        {
+            socket=skt;
+            try {
+                inputStream=socket.getInputStream();
+                outputStream=socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            while(socket!=null)
+            {
+                try {
+                    bytes= inputStream.read(buffer);
+                    if(bytes>0)
+                    {
+                        handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+        public  void write(byte[] bytes)
+        {
+            try {
+                outputStream.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //CLIENTE
+    public class ClientClass extends Thread{
+        Socket socket;
+        String hostAdd;
+
+        public ClientClass(InetAddress hostAddress)
+        {
+            hostAdd = hostAddress.getHostAddress();
+            socket = new Socket();
+        }
+
+        @Override
+        public void run() {
+            try{
+                socket.connect(new InetSocketAddress(hostAdd,8888),500);
+
+                sendReceive=new SendReceive(socket);
+                sendReceive.start();
+
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
     }
 }
 
