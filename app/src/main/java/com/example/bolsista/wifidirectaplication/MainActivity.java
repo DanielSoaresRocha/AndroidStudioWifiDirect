@@ -2,6 +2,7 @@ package com.example.bolsista.wifidirectaplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -34,7 +35,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnOnOff, btnDiscover, btnSend;
+    Button btnOnOff, btnDiscover, btnSend, tela2;
     ListView listView;
     TextView read_msg_box, connectionStatus;
     EditText writeMsg;
@@ -147,7 +148,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        tela2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent irTela = new Intent(MainActivity.this,figuras.class);
+                startActivity(irTela);
+            }
+        });
     }
+
+
+
 
     //Inicialização dos componentes
     private void initialWork(){
@@ -158,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         read_msg_box = findViewById(R.id.readMsg);
         connectionStatus = findViewById(R.id.connectionStatus);
         writeMsg = findViewById(R.id.writeMsg);
+        tela2 = findViewById(R.id.tela2);
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -223,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 serverClass.start(); //servidor começa a "ouvir"
             }else if(wifiP2pInfo.groupFormed)
             {
+
                 connectionStatus.setText("Cliente");
 
                 clientClass=new ClientClass(groupOwnerAdreess);
@@ -327,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             try{
+
                 socket.connect(new InetSocketAddress(hostAdd,8888),500);
 
                 sendReceive=new SendReceive(socket);

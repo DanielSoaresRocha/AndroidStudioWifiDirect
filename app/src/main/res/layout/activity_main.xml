@@ -58,8 +58,8 @@
 
     <TextView
         android:id="@+id/readMsg"
-        android:layout_width="155dp"
-        android:layout_height="39dp"
+        android:layout_width="303dp"
+        android:layout_height="98dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="88dp"
@@ -85,5 +85,12 @@
         android:layout_toEndOf="@+id/discover"
         android:text="enviar"
         android:layout_toRightOf="@+id/discover" />
+
+    <Button
+        android:id="@+id/tela2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ir para" />
+
 
 </RelativeLayout>
